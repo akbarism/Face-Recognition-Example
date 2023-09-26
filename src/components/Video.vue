@@ -42,12 +42,12 @@ export default {
       video: {
         width: {
           min: 320,
-          ideal: 1280,
+          ideal: 4096,
           max: 1920,
         },
         height: {
           min: 240,
-          ideal: 720,
+          ideal: 2160,
           max: 1080,
         },
         frameRate: {
@@ -55,7 +55,7 @@ export default {
           ideal: 30,
           max: 60,
         },
-        facingMode: "environment",
+        facingMode: "user",
       },
     });
 
