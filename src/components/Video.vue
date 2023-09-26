@@ -44,12 +44,12 @@ export default {
       video: {
         width: {
           min: 320,
-          ideal: 4096,
+          ideal: 1280,
           max: 1920,
         },
         height: {
           min: 240,
-          ideal: 2160,
+          ideal: 720,
           max: 1080,
         },
         frameRate: {
