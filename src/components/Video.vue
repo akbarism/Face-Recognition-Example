@@ -88,12 +88,11 @@ export default {
      * @function
      * @description detect input video
      */
-    const runModel = async () => {
-      const beforeDetect = Date.now();
+    const runModel = async () => { 
       const result = await faceAPI
         .detectAllFaces(videoEl.value, initParams.option)
-        .withAgeAndGender();
-      updateTimeStats(Date.now() - beforeDetect);
+        .withAgeAndGender(); 
+        
 
       if (result.length) {
         const dims = faceAPI.matchDimensions(
@@ -112,7 +111,6 @@ export default {
         faceAPI.draw.drawDetections(canvasEl.value, resizeResults);
       }
       setTimeout(() => runModel());
-      loading.value = false;
     };
 
     onMounted(() => {
@@ -123,6 +121,10 @@ export default {
       const initModel = async () => {
         try {
           await faceAPI.nets.ssdMobilenetv1.loadFromUri(initParams.modelUri);
+          await faceAPI.nets.faceLandmark68Net.loadFromUri(initParams.modelUri);
+          await faceAPI.nets.faceRecognitionNet.loadFromUri(
+            initParams.modelUri,
+          );
           await faceAPI.nets.ageGenderNet.loadFromUri(initParams.modelUri);
           startStream();
         } catch (error) {
