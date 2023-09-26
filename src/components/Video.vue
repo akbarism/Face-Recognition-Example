@@ -94,8 +94,8 @@ export default {
         .detectAllFaces(videoEl.value, initParams.option)
         .withAgeAndGender();
       updateTimeStats(Date.now() - beforeDetect);
-      console.log(result);
-      if (result) {
+
+      if (result.length) {
         const dims = faceAPI.matchDimensions(
           canvasEl.value,
           videoEl.value,
@@ -110,10 +110,9 @@ export default {
           (data) => data.gender === "female",
         ).length;
         faceAPI.draw.drawDetections(canvasEl.value, resizeResults);
-        loading.value = false;
       }
-      res.value = result;
       setTimeout(() => runModel());
+      loading.value = false;
     };
 
     onMounted(() => {
