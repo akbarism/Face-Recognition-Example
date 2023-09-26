@@ -17,7 +17,6 @@
           item
         }}
       </ul>
-      {{ res }}
     </li>
     <div
       class="fixed top-0 left-0 w-full h-screen bg-black/50 z-20 flex justify-center items-center"
@@ -25,6 +24,7 @@
     >
       <p class="font-bold text-lg text-white">Load Camera...</p>
     </div>
+    {{ res }}
   </section>
 </template>
 
@@ -94,7 +94,7 @@ export default {
         .detectAllFaces(videoEl.value, initParams.option)
         .withAgeAndGender();
       updateTimeStats(Date.now() - beforeDetect);
-      res.value = result;
+      console.log(result);
       if (result) {
         const dims = faceAPI.matchDimensions(
           canvasEl.value,
@@ -112,6 +112,7 @@ export default {
         faceAPI.draw.drawDetections(canvasEl.value, resizeResults);
         loading.value = false;
       }
+      res.value = result;
       setTimeout(() => runModel());
     };
 
