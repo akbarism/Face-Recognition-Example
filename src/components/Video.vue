@@ -122,8 +122,13 @@ export default {
        * @description load the trained model
        */
       const initModel = async () => {
-        await faceAPI.nets.ssdMobilenetv1.loadFromUri(initParams.modelUri);
-        await faceAPI.nets.ageGenderNet.loadFromUri(initParams.modelUri);
+        try {
+          await faceAPI.nets.ssdMobilenetv1.loadFromUri(initParams.modelUri);
+          await faceAPI.nets.ageGenderNet.loadFromUri(initParams.modelUri);
+          startStream();
+        } catch (error) {
+          console.error("Error loading model:", error.message);
+        }
       };
 
       /**
@@ -141,7 +146,6 @@ export default {
       };
 
       initModel();
-      startStream();
     });
 
     return {
