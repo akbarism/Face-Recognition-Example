@@ -17,6 +17,7 @@
           item
         }}
       </ul>
+      {{ res }}
     </li>
     <div
       class="fixed top-0 left-0 w-full h-screen bg-black/50 z-20 flex justify-center items-center"
@@ -38,6 +39,7 @@ export default {
       option: new faceAPI.SsdMobilenetv1Options({ minConfidence: 0.5 }),
     });
     const loading = ref(true);
+    const res = ref(null);
     const constraints = reactive({
       video: {
         width: {
@@ -92,7 +94,7 @@ export default {
         .detectAllFaces(videoEl.value, initParams.option)
         .withAgeAndGender();
       updateTimeStats(Date.now() - beforeDetect);
-
+      res.value = result;
       if (result) {
         const dims = faceAPI.matchDimensions(
           canvasEl.value,
@@ -147,6 +149,7 @@ export default {
       runModel,
       board,
       loading,
+      res,
     };
   },
 };
