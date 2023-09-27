@@ -4,7 +4,7 @@
       class="fixed top-0 left-0 w-full h-screen bg-black/50 z-20 flex justify-center items-center"
       v-if="loading"
     >
-      <p class="font-bold text-lg text-white">Memuat Model...</p>
+      <p class="font-bold text-lg text-white">Initialize Artificial Intelligence...</p>
     </div>
     <video
       ref="videoEl"
@@ -59,7 +59,7 @@ const runModel = async () => {
       .withFaceLandmarks()
       .withFaceDescriptors();
 
-    if (result.length) {
+    if (result?.length) {
       const dims = faceAPI.matchDimensions(canvasEl.value, videoEl.value, true);
 
       const resizeResults = faceAPI.resizeResults(result, dims);
@@ -76,7 +76,7 @@ const runModel = async () => {
         drawBox.draw(canvasEl.value);
       });
     }
-  }, 100);
+  }, 10);
   loading.value = false;
 };
 
@@ -103,21 +103,49 @@ const startStream = async () => {
   }
 };
 
+// const getPerson = async () => {
+//   let urlImg =
+//     "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230447-1695797384.png";
+
+//   const img = await faceAPI.fetchImage(urlImg);
+
+//   const descriptions = [];
+//   const detections = await faceAPI
+//     .detectSingleFace(img)
+//     .withFaceLandmarks()
+//     .withFaceDescriptor();
+//   descriptions.push(detections.descriptor);
+
+//   const label = "Afif Nuril";
+//   return new faceAPI.LabeledFaceDescriptors(label, descriptions);
+// };
+
 const getPerson = async () => {
-  let urlImg =
-    "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230447-1695797384.png";
+  let person = [
+    {
+      img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230447-1695797384.png",
+      label: "afif",
+    },
+    {
+      img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230441-1695798588.png",
+      label: "kontol",
+    },
+  ];
 
-  const img = await faceAPI.fetchImage(urlImg);
+  return Promise.all(
+    person.map(async (el) => {
+      const descriptions = [];
+      const img = await faceAPI.fetchImage(el.img);
 
-  const descriptions = [];
-  const detections = await faceAPI
-    .detectSingleFace(img)
-    .withFaceLandmarks()
-    .withFaceDescriptor();
-  descriptions.push(detections.descriptor);
+      const detections = await faceAPI
+        .detectSingleFace(img)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      descriptions.push(detections.descriptor);
 
-  const label = "Afif Nuril";
-  return new faceAPI.LabeledFaceDescriptors(label, descriptions);
+      return new faceAPI.LabeledFaceDescriptors(el.label, descriptions);
+    }),
+  );
 };
 
 onMounted(() => {
