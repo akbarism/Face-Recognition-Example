@@ -53,7 +53,7 @@ const runModel = async () => {
   msg.value = "Get Face Matcher";
 
   const labeledFaceDescriptors = await getPerson();
-  const faceMatcher = new faceAPI.FaceMatcher(labeledFaceDescriptors, 0.4);
+  const faceMatcher = new faceAPI.FaceMatcher(labeledFaceDescriptors, 0.45);
   setInterval(async () => {
     const result = await faceAPI
       .detectAllFaces(videoEl.value)
@@ -68,14 +68,11 @@ const runModel = async () => {
       const results = resizeResults.map((d) => {
         return faceMatcher.findBestMatch(d.descriptor);
       });
-      // console.log(results);
-      if (results.length) {
-        results.forEach((el) => {
-          console.log(el);
-        });
-      }
 
       results.forEach((result, i) => {
+        if (results._label != "unknown") {
+          console.log(result._label);
+        }
         const box = resizeResults[i].detection.box;
         const drawBox = new faceAPI.draw.DrawBox(box, {
           label: result,
