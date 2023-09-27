@@ -1,5 +1,11 @@
 <template>
-  <div class="display">
+  <div class="display flex justify-center items-center flex-col">
+    <div
+      class="fixed top-0 left-0 w-full h-screen bg-black/50 z-20 flex justify-center items-center"
+      v-if="loading"
+    >
+      <p class="font-bold text-lg text-white">Memuat Model...</p>
+    </div>
     <video
       ref="videoEl"
       autoplay="true"
@@ -27,12 +33,12 @@ const constraints = reactive({
   video: {
     width: {
       min: 320,
-      ideal: 1280,
+      ideal: 4096,
       max: 1920,
     },
     height: {
       min: 240,
-      ideal: 720,
+      ideal: 2160,
       max: 1080,
     },
     frameRate: {
@@ -46,7 +52,7 @@ const constraints = reactive({
 
 const runModel = async () => {
   const labeledFaceDescriptors = await getPerson();
-  const faceMatcher = new faceAPI.FaceMatcher(labeledFaceDescriptors);
+  const faceMatcher = new faceAPI.FaceMatcher(labeledFaceDescriptors, 0.4);
   setInterval(async () => {
     const result = await faceAPI
       .detectAllFaces(videoEl.value)
@@ -71,6 +77,7 @@ const runModel = async () => {
       });
     }
   }, 100);
+  loading.value = false;
 };
 
 const initModel = async () => {
@@ -98,7 +105,7 @@ const startStream = async () => {
 
 const getPerson = async () => {
   let urlImg =
-    "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230447-1695711447.png";
+    "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230447-1695797384.png";
 
   const img = await faceAPI.fetchImage(urlImg);
 
@@ -124,9 +131,6 @@ onMounted(() => {
   margin: 0;
   width: 100vw;
   height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 canvas {
