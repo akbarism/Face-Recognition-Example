@@ -16,7 +16,7 @@
       <div v-if="base64" class="relative">
         <img :src="base64" class="w-full" />
         <div
-          class="absolute z-10 top-1 left-1 p-2 rounded-lg bg-black/50 text-white"
+          class="absolute z-10 top-3 left-3 p-3 rounded-lg bg-black/50 text-white"
         >
           {{ matchedFace }}
         </div>
@@ -70,6 +70,8 @@ const runModel = async () => {
 
   const labeledFaceDescriptors = await getPerson();
   const faceMatcher = new faceAPI.FaceMatcher(labeledFaceDescriptors, 0.45);
+  msg.value = "Runing Machine...";
+
   interval.value = setInterval(async () => {
     msg.value = "Detecting All Faces";
 
