@@ -4,14 +4,11 @@
       class="fixed top-0 left-0 w-full h-screen bg-black/50 z-20 flex justify-center items-center"
       v-if="loading"
     >
-      <p class="font-bold text-lg text-white">Initialize Artificial Intelligence...</p>
+      <p class="font-bold text-lg text-white">
+        {{ msg }}
+      </p>
     </div>
-    <video
-      ref="videoEl"
-      autoplay="true"
-      playsinline
-      @loadedmetadata="runModel"
-    />
+    <video ref="videoEl" autoplay="true" playsinline />
     <canvas ref="canvasEl" />
   </div>
 </template>
@@ -23,6 +20,8 @@ const initParams = reactive({
   modelUri: "/models",
   option: new faceAPI.SsdMobilenetv1Options({ minConfidence: 0.5 }),
 });
+
+const msg = ref("");
 
 const loading = ref(true);
 
@@ -51,6 +50,8 @@ const constraints = reactive({
 });
 
 const runModel = async () => {
+  msg.value = "Get Face Matcher";
+
   const labeledFaceDescriptors = await getPerson();
   const faceMatcher = new faceAPI.FaceMatcher(labeledFaceDescriptors, 0.4);
   setInterval(async () => {
@@ -67,6 +68,12 @@ const runModel = async () => {
       const results = resizeResults.map((d) => {
         return faceMatcher.findBestMatch(d.descriptor);
       });
+      // console.log(results);
+      if (results.length) {
+        results.forEach((el) => {
+          console.log(el);
+        });
+      }
 
       results.forEach((result, i) => {
         const box = resizeResults[i].detection.box;
@@ -76,12 +83,14 @@ const runModel = async () => {
         drawBox.draw(canvasEl.value);
       });
     }
-  }, 10);
+  }, 50);
   loading.value = false;
 };
 
 const initModel = async () => {
   try {
+    loading.value = true;
+    msg.value = "Initialize Artificial Intelegence";
     await faceAPI.nets.ssdMobilenetv1.loadFromUri(initParams.modelUri);
     await faceAPI.nets.faceLandmark68Net.loadFromUri(initParams.modelUri);
     await faceAPI.nets.faceRecognitionNet.loadFromUri(initParams.modelUri);
@@ -96,8 +105,10 @@ const initModel = async () => {
 const startStream = async () => {
   try {
     loading.value = true;
+    msg.value = "starting Camera";
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     videoEl.value.srcObject = stream;
+    runModel();
   } catch (error) {
     console.error(error.message);
   }
@@ -124,11 +135,15 @@ const getPerson = async () => {
   let person = [
     {
       img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230447-1695797384.png",
-      label: "afif",
+      label: "Afif Nuril Ihsan",
     },
     {
       img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230441-1695798588.png",
-      label: "kontol",
+      label: "Ujun Junaidi",
+    },
+    {
+      img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230453-1695807876.png",
+      label: "mail",
     },
   ];
 
