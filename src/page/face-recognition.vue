@@ -1,5 +1,5 @@
 <template>
-  <div class="display flex justify-center items-center flex-col">
+  <div class="w-full flex justify-center">
     <div
       class="fixed top-0 left-0 w-full h-screen bg-black/50 z-20 flex justify-center items-center"
       v-if="loading"
@@ -8,8 +8,20 @@
         {{ msg }}
       </p>
     </div>
-    <video ref="videoEl" autoplay="true" playsinline />
-    <canvas ref="canvasEl" />
+    <div class="w-[50%] max-[650px]:w-full">
+      <div v-if="!base64" class="bg-red-50 relative">
+        <video ref="videoEl" autoplay="true" class="w-full" playsinline />
+        <canvas ref="canvasEl" class="absolute top-0" />
+      </div>
+      <div v-if="base64" class="relative">
+        <img :src="base64" class="w-full" />
+        <div
+          class="absolute z-10 top-1 left-1 p-2 rounded-lg bg-black/50 text-white"
+        >
+          {{ matchedFace }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -21,12 +33,16 @@ const initParams = reactive({
   option: new faceAPI.SsdMobilenetv1Options({ minConfidence: 0.5 }),
 });
 
+const interval = ref(null);
+
 const msg = ref("");
+const base64 = ref("");
 
 const loading = ref(true);
 
 const videoEl = ref(null);
 const canvasEl = ref(null);
+const matchedFace = ref(null);
 
 const constraints = reactive({
   video: {
@@ -50,17 +66,21 @@ const constraints = reactive({
 });
 
 const runModel = async () => {
-  msg.value = "Get Face Matcher";
+  msg.value = "Runing Machine";
 
   const labeledFaceDescriptors = await getPerson();
   const faceMatcher = new faceAPI.FaceMatcher(labeledFaceDescriptors, 0.45);
-  setInterval(async () => {
+  interval.value = setInterval(async () => {
+    msg.value = "Detecting All Faces";
+
     const result = await faceAPI
       .detectAllFaces(videoEl.value)
       .withFaceLandmarks()
       .withFaceDescriptors();
 
     if (result?.length) {
+      msg.value = "Matching Face...";
+
       const dims = faceAPI.matchDimensions(canvasEl.value, videoEl.value, true);
 
       const resizeResults = faceAPI.resizeResults(result, dims);
@@ -70,24 +90,51 @@ const runModel = async () => {
       });
 
       results.forEach((result, i) => {
-        if (results._label != "unknown") {
-          console.log(result._label);
-        }
         const box = resizeResults[i].detection.box;
         const drawBox = new faceAPI.draw.DrawBox(box, {
           label: result,
         });
         drawBox.draw(canvasEl.value);
+        if (result._label !== "unknown") {
+          clearInterval(interval.value);
+          matchedFace.value = result;
+          capture();
+        }
       });
     }
-  }, 50);
+  }, 200);
   loading.value = false;
+};
+
+const onFaceMatched = (res) => {
+  // msg.value = "FACE MATCHED";
+  // loading.value = true;
+  capture();
+};
+
+const capture = () => {
+  const ctx = canvasEl.value.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(
+    videoEl.value,
+    0,
+    0,
+    canvasEl.value.width,
+    canvasEl.value.height,
+  );
+  const imageData = canvasEl.value.toDataURL("image/jpeg");
+  base64.value = imageData;
+
+  if (videoEl.value.srcObject) {
+    videoEl.value.srcObject.getTracks().forEach((track) => track.stop());
+  }
 };
 
 const initModel = async () => {
   try {
     loading.value = true;
-    msg.value = "Initialize Artificial Intelegence";
+    msg.value = "Initialize Machine";
     await faceAPI.nets.ssdMobilenetv1.loadFromUri(initParams.modelUri);
     await faceAPI.nets.faceLandmark68Net.loadFromUri(initParams.modelUri);
     await faceAPI.nets.faceRecognitionNet.loadFromUri(initParams.modelUri);
@@ -131,16 +178,20 @@ const startStream = async () => {
 const getPerson = async () => {
   let person = [
     {
-      img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230447-1695797384.png",
-      label: "Afif Nuril Ihsan",
-    },
-    {
       img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230441-1695798588.png",
       label: "Ujun Junaidi",
     },
     {
       img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230453-1695807876.png",
       label: "mail",
+    },
+    {
+      img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230226-1695810970.png",
+      label: "septian",
+    },
+    {
+      img: "https://nos.wjv-1.neo.id/himpsi-sik-dev/profil-user/anggota/avatar/20230447-1695797384.png",
+      label: "Afif Nuril Ihsan",
     },
   ];
 
