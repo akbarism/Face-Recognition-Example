@@ -36,7 +36,7 @@
           vm.type == 'success' ? 'text-blue-500' : 'text-red-500'
         }`"
       >
-        {{ vm.text }} ({{ vm.distance }})
+        {{ vm.text }}
       </p>
     </div>
     <p>
@@ -46,6 +46,17 @@
           .format("dddd, DD MMMM YYYY | HH:mm:ss")
       }}
     </p>
+    <pre lang="json">{{
+      JSON.stringify(
+        {
+          latitude: vm.current.latitude,
+          longitude: vm.current.longitude,
+          distance: vm.distance,
+        },
+        null,
+        2,
+      )
+    }}</pre>
   </div>
 </template>
 
