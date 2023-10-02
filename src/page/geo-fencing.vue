@@ -6,8 +6,14 @@
     >
       Check Location
     </button>
+    <Icon
+      v-if="vm.loading"
+      icon="mdi:circle"
+      height="15"
+      class="animate-ping"
+    />
     <div
-      v-if="vm.isResult"
+      v-if="vm.isResult && !vm.loading"
       :class="`p-3 flex items-center rounded-lg border ${
         vm.type == 'success'
           ? 'bg-blue-50 border-blue-500'
@@ -30,7 +36,7 @@
           vm.type == 'success' ? 'text-blue-500' : 'text-red-500'
         }`"
       >
-        {{ vm.text }}
+        {{ vm.text }} ({{ vm.distance }})
       </p>
     </div>
   </div>
@@ -42,7 +48,9 @@ import { reactive } from "vue";
 const vm = reactive({
   text: "",
   type: "",
+  distance: "",
   isResult: false,
+  loading: false,
 });
 // Fungsi untuk mengecek apakah perangkat berada dalam wilayah geofencing
 const checkGeofence = (latitude, longitude, currentLocation) => {
@@ -57,9 +65,11 @@ const checkGeofence = (latitude, longitude, currentLocation) => {
 
   const km = 1000;
   const m = 3;
-  const radius = m / km;
+  const radius = m / 1000;
 
   // Memeriksa apakah perangkat berada dalam wilayah geofencing
+
+  vm.distance = distance;
   if (distance <= radius) {
     vm.text = "Perangkat berada dalam wilayah geofencing.";
     vm.type = "success";
@@ -102,6 +112,7 @@ const base = {
 };
 
 const isValidLocation = () => {
+  vm.loading = true;
   // Menggunakan API Geolocation untuk mendapatkan lokasi saat ini
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -109,10 +120,11 @@ const isValidLocation = () => {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       };
-      console.log(currentLocation);
-
-      // Memeriksa apakah perangkat berada dalam wilayah geofencing
-      checkGeofence(base.latitude, base.longitude, currentLocation);
+      setInterval(() => {
+        // Memeriksa apakah perangkat berada dalam wilayah geofencing
+        checkGeofence(base.latitude, base.longitude, currentLocation);
+        vm.loading = false;
+      }, 1000);
     },
     (error) => {
       console.error("Error getting current location:", error.message);
