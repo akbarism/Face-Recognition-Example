@@ -39,13 +39,19 @@
         {{ vm.text }} ({{ vm.distance }})
       </p>
     </div>
-    {{ vm.current }}
+    <p>
+      {{
+        day(vm.updated_location)
+          .locale("id")
+          .format("dddd, DD MMMM YYYY | HH:mm:ss")
+      }}
+    </p>
   </div>
 </template>
 
 <script setup>
-import { reactive } from "vue";
-
+import { reactive, onMounted } from "vue";
+import day from "../plugin/day";
 const vm = reactive({
   text: "",
   type: "",
@@ -53,6 +59,7 @@ const vm = reactive({
   isResult: false,
   loading: false,
   current: null,
+  updated_location: "",
 });
 // Fungsi untuk mengecek apakah perangkat berada dalam wilayah geofencing
 const checkGeofence = (latitude, longitude, currentLocation) => {
@@ -65,7 +72,7 @@ const checkGeofence = (latitude, longitude, currentLocation) => {
   );
   vm.isResult = true;
 
-  const radius = 1 / 1000;
+  const radius = 3 / 1000;
 
   // Memeriksa apakah perangkat berada dalam wilayah geofencing
   console.log(radius);
@@ -107,29 +114,33 @@ const toRadians = (degrees) => {
 // Contoh penggunaan
 
 const base = {
-  latitude: -6.8955463,
-  longitude: 107.657059,
+  latitude: -6.9008807,
+  longitude: 107.6528414,
+};
+
+const updateLocation = (position) => {
+  const currentLocation = {
+    latitude: position.coords.latitude,
+    longitude: position.coords.longitude,
+  };
+  vm.current = currentLocation;
+  vm.updated_location = position.timestamp;
 };
 
 const isValidLocation = () => {
   vm.loading = true;
-  // Menggunakan API Geolocation untuk mendapatkan lokasi saat ini
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const currentLocation = {
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      };
-      setTimeout(() => {
-        // Memeriksa apakah perangkat berada dalam wilayah geofencing
-        vm.current = currentLocation;
-        checkGeofence(base.latitude, base.longitude, currentLocation);
-        vm.loading = false;
-      }, 1000);
-    },
+  setTimeout(() => {
+    checkGeofence(base.latitude, base.longitude, vm.current);
+    vm.loading = false;
+  }, 1000);
+};
+
+onMounted(() => {
+  const watchId = navigator.geolocation.watchPosition(
+    updateLocation,
     (error) => {
       console.error("Error getting current location:", error.message);
     },
   );
-};
+});
 </script>
