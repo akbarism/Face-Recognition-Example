@@ -16,6 +16,11 @@ const routes = [
     name: "recognition",
     component: () => import("./page/face-recognition.vue"),
   },
+  {
+    path: "/geofencing",
+    name: "geofencing",
+    component: () => import("./page/geo-fencing.vue"),
+  },
 ];
 
 const router = createRouter({
