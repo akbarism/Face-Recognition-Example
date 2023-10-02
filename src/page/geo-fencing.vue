@@ -14,7 +14,7 @@
     />
     <div
       v-if="vm.isResult && !vm.loading"
-      :class="`p-3 flex items-center rounded-lg border ${
+      :class="`p-3 flex items-center rounded-lg border mb-5 ${
         vm.type == 'success'
           ? 'bg-blue-50 border-blue-500'
           : 'bg-red-50 border-red-500'
@@ -39,6 +39,7 @@
         {{ vm.text }} ({{ vm.distance }})
       </p>
     </div>
+    {{ vm.current }}
   </div>
 </template>
 
@@ -51,6 +52,7 @@ const vm = reactive({
   distance: "",
   isResult: false,
   loading: false,
+  current: null,
 });
 // Fungsi untuk mengecek apakah perangkat berada dalam wilayah geofencing
 const checkGeofence = (latitude, longitude, currentLocation) => {
@@ -63,12 +65,10 @@ const checkGeofence = (latitude, longitude, currentLocation) => {
   );
   vm.isResult = true;
 
-  const km = 1000;
-  const m = 1;
-  const radius = m / 1000;
+  const radius = 1 / 1000;
 
   // Memeriksa apakah perangkat berada dalam wilayah geofencing
-
+  console.log(radius);
   vm.distance = distance;
   if (distance <= radius) {
     vm.text = "Perangkat berada dalam wilayah geofencing.";
@@ -107,8 +107,8 @@ const toRadians = (degrees) => {
 // Contoh penggunaan
 
 const base = {
-  latitude: -6.9008815,
-  longitude: 107.6528374,
+  latitude: -6.8955463,
+  longitude: 107.657059,
 };
 
 const isValidLocation = () => {
@@ -120,8 +120,9 @@ const isValidLocation = () => {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
       };
-      setInterval(() => {
+      setTimeout(() => {
         // Memeriksa apakah perangkat berada dalam wilayah geofencing
+        vm.current = currentLocation;
         checkGeofence(base.latitude, base.longitude, currentLocation);
         vm.loading = false;
       }, 1000);
