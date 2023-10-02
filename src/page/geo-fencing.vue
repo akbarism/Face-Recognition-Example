@@ -64,7 +64,7 @@ const checkGeofence = (latitude, longitude, currentLocation) => {
   vm.isResult = true;
 
   const km = 1000;
-  const m = 3;
+  const m = 1;
   const radius = m / 1000;
 
   // Memeriksa apakah perangkat berada dalam wilayah geofencing
