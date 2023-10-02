@@ -5,21 +5,28 @@ const routes = [
     path: "/",
     name: "inApp",
     component: () => import("./App.vue"),
-  },
-  {
-    path: "/gender-detector",
-    name: "gender",
-    component: () => import("./page/gender-detector.vue"),
-  },
-  {
-    path: "/recognition",
-    name: "recognition",
-    component: () => import("./page/face-recognition.vue"),
-  },
-  {
-    path: "/geofencing",
-    name: "geofencing",
-    component: () => import("./page/geo-fencing.vue"),
+    children: [
+      {
+        path: "",
+        name: "home",
+        component: () => import("./page/home.vue"),
+      },
+      {
+        path: "/gender-detector",
+        name: "Gender Detector",
+        component: () => import("./page/gender-detector.vue"),
+      },
+      {
+        path: "/recognition",
+        name: "Face Recognition",
+        component: () => import("./page/face-recognition.vue"),
+      },
+      {
+        path: "/geofencing",
+        name: "Geo Fencing",
+        component: () => import("./page/geo-fencing.vue"),
+      },
+    ],
   },
 ];
 
